@@ -179,7 +179,7 @@ public class Chip8CPU extends Thread{
                 break;
 
             case 0xD000: // DRW Vx, Vy, nibble
-                // May be a little offset
+                // Weird offset
                 System.out.println("DRW Vx, Vy, nibble");
                 int spriteSize = instructionRegister & 0xF;
                 registers[0xF] = 0;
@@ -191,7 +191,7 @@ public class Chip8CPU extends Thread{
 
                         if (drawX > SCREEN_WIDTH - 1) drawX -= SCREEN_WIDTH;
                         if (drawY > SCREEN_HEIGHT - 1) drawY -= SCREEN_HEIGHT;
-                        //System.out.println(drawX + "," + SCREEN_WIDTH + ": " + (drawX > SCREEN_WIDTH)); //Comparison doesn't work???
+                        System.out.println(drawX + "," + drawY);
           
                         if(screenData[drawX][drawY] == true) registers[0xF] = 1;
                         screenData[drawX][drawY] ^= getBitAtPos(memory[I + j], i);
