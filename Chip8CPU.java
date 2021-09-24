@@ -179,7 +179,7 @@ public class Chip8CPU extends Thread{
                 break;
 
             case 0xD000: // DRW Vx, Vy, nibble
-                // Weird offset
+                // Weird offset, IDK why
                 System.out.println("DRW Vx, Vy, nibble");
                 int spriteSize = instructionRegister & 0xF;
                 registers[0xF] = 0;
