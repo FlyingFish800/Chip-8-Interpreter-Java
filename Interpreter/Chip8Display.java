@@ -1,3 +1,6 @@
+// 8/31/21 | Alexander Symons | Chip 8 interpreter | Chip8Display.java
+
+package Interpreter;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;

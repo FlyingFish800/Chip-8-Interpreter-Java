@@ -1,3 +1,6 @@
+// 8/31/21 | Alexander Symons | Chip 8 interpreter | Chip8Main.java
+
+package Interpreter;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
