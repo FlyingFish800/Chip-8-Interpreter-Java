@@ -1,0 +1,36 @@
+// 9/25/21 | Alexander Symons | Assembler | reference.txt
+
+MOV vs LD:
+mov genrally used to move data to registers, ld to load from mem, some processors (like Z80) us ld for everything, CHIP8 does too
+
+$:
+Hex value
+
+%:
+binary
+
+.data:
+data section for constants
+
+.text:
+section for instructions
+
+LD:
+LD destination, source
+LD R0, 42 ; load register 0 with 42
+LD R0, $2A ; load register 0 with 0x2A (42)
+LD R0, ($0) ; load register 0 with value at adress 0x0
+
+Register adressing:
+LD R0, R1 ; load R0 with value of R1
+reads/wrties value of register
+
+Immediate adressing:
+LD R0, 42 ; load R0 with 42
+loads given number directly into register
+
+Extended/direct adressing:
+LD R0, (42) ; load R0 with value at mem adress 42
+
+Constants:
+CONST_NAME equ $200 ; sets constant CONST_NAME to 0x200
