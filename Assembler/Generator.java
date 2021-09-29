@@ -15,16 +15,18 @@ public class Generator {
     }
 
     public void generateCode (){
+        int i = 0;
         for (Token token : tokens) {
             switch (token.getID()) {
                 case "GLOBAL":
                     entrypoint = token.getOperands()[0];
                     break;
-            
+                    
                 default:
                     System.out.println("Unimplemented/Invalid token " + token);
                     break;
             }
+            i++;
         }
     }
 }

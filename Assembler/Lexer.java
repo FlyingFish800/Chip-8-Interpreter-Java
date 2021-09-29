@@ -53,8 +53,8 @@ public class Lexer {
                             break;
 
                         case "LD":
-                            System.out.println("LD: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("LD", convertToArray(words, i + 1, 2)));
+                            System.out.println("LD: " + words[i + 1] + " " + words[i + 2] + ": " + ldAdressMode(words[i + 1], words[i + 2]));
+                            tokens.add(new Token("LD", convertToArray(words, i + 1, 2),ldAdressMode(words[i + 1], words[i + 2])));
                             i += 2;
                             break;
 
@@ -95,5 +95,13 @@ public class Lexer {
         return temp;
     }
 
+    public Token.memAdressingMode ldAdressMode (String operand1, String operand2){
+        if(operand1.contains("R") && operand2.contains("R")){
+            return Token.memAdressingMode.RegisterToRegister;
+        } else if(operand1.contains("R") && !operand2.contains("R")){ // check this last b/c send arg is very vauge
+            return Token.memAdressingMode.ImmideateToRegister;
+        }
+        return Token.memAdressingMode.Implied;
+    }
     
 }

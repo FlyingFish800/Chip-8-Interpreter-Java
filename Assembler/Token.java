@@ -4,7 +4,7 @@ package Assembler;
 
 public class Token {
 
-    public static enum memAdressingMode {Implied, Immideate, Register, Extended};
+    public static enum memAdressingMode {Implied, ImmideateToRegister, RegisterToRegister, DelayTimerToRegister, KeyboardToRegister, RegisterToDelayTimer, RegisterToSoundTimer, SpriteAddrToRegister, DecimalToRegister, RegisterToMemory, MemoryToRegisters};
 
     private String opID;
     private String[] operands;
@@ -21,7 +21,7 @@ public class Token {
         this.operands = operands;
         this.adressingMode = adressingMode;
     }
-
+    
     public String getID (){
         return opID;
     }
