@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Lexer {
 
     // Types of segments in an asm program
-    private enum segmentType {TEXT, DATA};
+    public enum segmentType {TEXT, DATA};
     // variable for storing unparsed code
     private String code;
     private ArrayList<Token> tokens = new ArrayList<Token>();
@@ -48,7 +48,7 @@ public class Lexer {
 
                         case ".global":
                             System.out.println("GLOBAl: " + words[i + 1]);
-                            tokens.add(new Token("GLOBAL", convertToArray(words, i + 1, 1)));
+                            tokens.add(new Token("GLOBAL", convertToArray(words, i + 1, 1), segmentType.TEXT));
                             i += 1;
                             break;
 
@@ -72,6 +72,7 @@ public class Lexer {
                     
                         default:
                             System.out.println("LABEL: " + words[i]);
+                            // TODO: UNHARDCODE; NOT ALWAYS TEXT!!
                             tokens.add(new Token("LABEL", convertToArray(words, i, 1)));
                             break;
                     }
@@ -88,7 +89,10 @@ public class Lexer {
     public String[] convertToArray(String[] list, int startIndex, int length){
         String[] temp = new String[length];
 
+        // TODO: Handle decimal, hex, mem, comma
+
         for (int i = 0; i < length; i++) {
+            // Split comma off of operands
             temp[i] = list[startIndex + i].split(",")[0];
         }
 
