@@ -168,7 +168,11 @@ public class Chip8CPU extends Thread{
                 break;
 
             case 0x8000:
-                if((instructionRegister & 0xF) == 0x2){ // AND Vx, Vy
+                if((instructionRegister & 0xF) == 0x0){ // LD Vx, Vy
+                    // Load register y with value of register y
+                    System.out.println("LD Vx, Vy"); 
+                    registers[x] = registers[y];
+                }else if((instructionRegister & 0xF) == 0x2){ // AND Vx, Vy
                     // And registers x and y, store in register x
                     System.out.println("AND Vx, Vy"); 
                     registers[x] &= registers[y];

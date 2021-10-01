@@ -2,7 +2,7 @@
 
 .global _start  ; _start globally available
 
-_start: ; label
+_start: ; label 
     LD R0, 0
     LD R1, 1
 _loop:

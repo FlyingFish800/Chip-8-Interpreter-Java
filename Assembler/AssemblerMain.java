@@ -19,6 +19,12 @@ public class AssemblerMain {
         lexer.tokenize();
 
         generator = new Generator(lexer.getTokens());
+        generator.generateCode();
+        try {
+            generator.outputMachineCode("out.c8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
