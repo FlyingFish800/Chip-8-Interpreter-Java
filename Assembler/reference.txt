@@ -34,3 +34,6 @@ LD R0, (42) ; load R0 with value at mem adress 42
 
 Constants:
 CONST_NAME equ $200 ; sets constant CONST_NAME to 0x200
+
+db:
+define byte

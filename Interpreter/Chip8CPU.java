@@ -185,6 +185,15 @@ public class Chip8CPU extends Thread{
                         registers[0xF] = 0;
                     }
                     registers[x] = (registers[x] + registers[y]) & 0xFF;
+                }else if((instructionRegister & 0xF) == 0x5){ // SUB Vx, Vy
+                    // Add registers x and y, and with 255, put result in register x
+                    System.out.println("SUB Vx, Vy"); 
+                    if(registers[x] > registers[y]) {
+                        registers[0xF] = 1;
+                    } else {
+                        registers[0xF] = 0;
+                    }
+                    registers[x] = registers[x] - registers[y];
                 }else{
                     // Unimplemented/Invalid
                     System.err.printf("Invalid/Unimplemented opcode %x%n", instructionRegister);

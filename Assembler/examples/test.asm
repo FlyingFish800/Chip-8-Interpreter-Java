@@ -1,4 +1,4 @@
-.text   ; Instructions here
+.text   ; Instructions here. Dont htink its required for Chip 8 lol
 
 .global _start  ; _start globally available
 
