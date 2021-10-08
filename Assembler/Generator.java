@@ -34,7 +34,7 @@ public class Generator {
                 case "LABEL":
                     // TODO: check for duplicates
                     Token temp = token;
-                    token.setAdress(adress + 0x202);
+                    token.setAdress(adress + 0x200);
                     labels.add(token);
                     break;                
 
@@ -52,8 +52,8 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
-                            }
-                            adress += 1;    
+                            } 
+                            adress += 2;   
                             break;
                     }
                     break;
@@ -67,9 +67,9 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
+                            adress += 2;   
                             break;
                     }
-                    adress += 1;    
                     break;
 
                 case "SUB":
@@ -81,9 +81,9 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
+                            adress += 2;   
                             break;
                     }
-                    adress += 1;    
                     break;
 
                 case "SE":
@@ -101,7 +101,7 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
-                            adress += 1;    
+                            adress += 2;    
                             break;
                     }
                     break;
@@ -121,7 +121,7 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
-                            adress += 1;    
+                            adress += 2;    
                             break;
                     }
                     break;
@@ -131,7 +131,7 @@ public class Generator {
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                     System.out.println(instruction);
-                    adress += 1;    
+                    adress += 2;    
                     break;
             
                 default:
