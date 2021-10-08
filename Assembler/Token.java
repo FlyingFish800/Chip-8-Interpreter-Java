@@ -65,7 +65,12 @@ public class Token {
             // TODO: add handling for mem address, and hex
             if(operands[i].startsWith("R")){ // Registers are Rx
                 adressingModes[i] = "Register";
-            } else {// Immediate values are unmarked
+            } else if(operands[i].contains("0x")){  // Hex is 0xBYTE
+                operands[i] = Integer.parseInt(operands[i].split("0x")[1],16) + "";
+                adressingModes[i] = "Immediate";
+            } else if(operands[i].equals("F")){  // Sprite Register 
+                adressingModes[i] = "Sprite Pointer";
+            } else {    // Immediate values are unmarked
                 adressingModes[i] = "Immediate";
             } // end if
             

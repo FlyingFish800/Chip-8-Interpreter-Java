@@ -13,7 +13,7 @@ public class AssemblerMain {
         Lexer lexer;            // Define Lexer
         Generator generator;    // Define Gnenerator
 
-        fileContents = readFile("examples/test2.asm");  // Load source code
+        fileContents = readFile("examples/test_DRW.asm");  // Load source code
         
         lexer = new Lexer(fileContents);    // Create Lexer
         lexer.tokenize();   // Tokenize source code

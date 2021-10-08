@@ -77,6 +77,10 @@ public class Chip8Display implements KeyListener{
 			g.drawString("Register["+i+"]: " + registers[i], WIDTH*scale+4, currentYpos);
 		}
 		currentYpos += 16;
+		g.drawString("I", WIDTH*scale+4, currentYpos);
+		currentYpos += 16;
+		g.drawString("[I]: " + cpu.getI(), WIDTH*scale+4, currentYpos);
+		currentYpos += 16;
 		g.drawString("STACK", WIDTH*scale+4, currentYpos);
 		int[] stack = cpu.getStack();
 		for (int i = 0; i < 2; i++) {

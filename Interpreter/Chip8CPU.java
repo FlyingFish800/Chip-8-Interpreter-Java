@@ -93,6 +93,10 @@ public class Chip8CPU extends Thread{
         return Integer.toHexString(instructionRegister);
     }
 
+    public int getI (){
+        return I;
+    }
+
     public void tick (boolean[] keys){ // Clock CPU, takes key presses as input
         if(paused) return; // Skip if paused
 
@@ -221,7 +225,7 @@ public class Chip8CPU extends Thread{
                 // starting at the x and y coords held in registers x and y
                 // TODO: Weird offset, IDK why
                 System.out.println("DRW Vx, Vy, nibble");
-                int spriteSize = instructionRegister & 0xF;
+                int spriteSize = instructionRegister & 0xF; // X offset by 5???
                 registers[0xF] = 0;
                 for (int j = 0; j < spriteSize; j++) {
                     for (int i = 0; i < 8; i++) {
@@ -231,12 +235,17 @@ public class Chip8CPU extends Thread{
 
                         if (drawX > SCREEN_WIDTH - 1) drawX -= SCREEN_WIDTH;
                         if (drawY > SCREEN_HEIGHT - 1) drawY -= SCREEN_HEIGHT;
-                        System.out.println(drawX + "," + drawY);
+                        System.out.println(drawX + "," + drawY + ": " + screenData[drawX][drawY]);
           
                         if(screenData[drawX][drawY] == true) registers[0xF] = 1;
                         screenData[drawX][drawY] ^= getBitAtPos(memory[I + j], i);
                     }
                 }
+                /*for (int j = 0; j < 15; j++) {
+                    for (int i = 0; i < 15; i++) { 
+                        System.out.println(j + "," + i + ": " + screenData[j][i]);
+                    }
+                }*/
                 //paused = true;
                 progCounter += 2;
                 break;

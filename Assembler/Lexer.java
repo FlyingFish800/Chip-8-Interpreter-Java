@@ -85,6 +85,12 @@ public class Lexer {
                             tokens.add(new Token("JP", convertToArray(words, i + 1, 1)));
                             i += 1; // Skip args, already processed 
                             break;
+
+                        case "DRW":  // unconditional jump instruction, takes next two tokens as args
+                            System.out.println("DRW: " + words[i + 1]);
+                            tokens.add(new Token("DRW", convertToArray(words, i + 1, 3)));
+                            i += 3; // Skip args, already processed 
+                            break;
                     
                         default:    // Otherwise, try to process as label
                             System.out.println("LABEL: " + words[i]);
