@@ -224,8 +224,9 @@ public class Chip8CPU extends Thread{
                 // Draw sprtie starting at sprite index, going down(?) by a number of lines given in a nibble of data,
                 // starting at the x and y coords held in registers x and y
                 // TODO: Weird offset, IDK why
+                // Nibble is y, data seems to be put in center going left of 8XNibble zone
                 System.out.println("DRW Vx, Vy, nibble");
-                int spriteSize = instructionRegister & 0xF; // X offset by 5???
+                int spriteSize = instructionRegister & 0xF; // X offset by 5??? 
                 registers[0xF] = 0;
                 for (int j = 0; j < spriteSize; j++) {
                     for (int i = 0; i < 8; i++) {
@@ -235,9 +236,9 @@ public class Chip8CPU extends Thread{
 
                         if (drawX > SCREEN_WIDTH - 1) drawX -= SCREEN_WIDTH;
                         if (drawY > SCREEN_HEIGHT - 1) drawY -= SCREEN_HEIGHT;
-                        System.out.println(drawX + "," + drawY + ": " + screenData[drawX][drawY]);
           
                         if(screenData[drawX][drawY] == true) registers[0xF] = 1;
+                        System.out.println(drawX + "," + drawY + ": " + screenData[drawX][drawY]);
                         screenData[drawX][drawY] ^= getBitAtPos(memory[I + j], i);
                     }
                 }
