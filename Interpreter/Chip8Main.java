@@ -47,7 +47,7 @@ public class Chip8Main extends Thread{
         cpu = new Chip8CPU();
         display = new Chip8Display(12);
         try {
-            cpu.loadProg(getProgram("out.c8"));
+            cpu.loadProg(getProgram("pong2.c8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,7 +61,7 @@ public class Chip8Main extends Thread{
     public static void reset() {
         cpu.reset();
         try {
-            cpu.loadProg(getProgram("out.c8"));
+            cpu.loadProg(getProgram("pong2.c8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

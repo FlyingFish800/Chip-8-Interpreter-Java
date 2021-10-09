@@ -71,7 +71,8 @@ public class Chip8CPU extends Thread{
     }
 
     private boolean getBitAtPos (int data, int index){ // Helper method for getting bit at index in int
-        return ((data >> index) & 1) == 1;
+        // - 7 to start at most significant bit, shift and get last bit if its a 1
+        return ((data >> 7 - index) & 1) == 1;
     }
 
     public int[] getRegisters (){ // Getter for displaying registers for debug purposes
@@ -101,8 +102,6 @@ public class Chip8CPU extends Thread{
         if(paused) return; // Skip if paused
 
         if(delayTimer > 0) delayTimer--; // Decrease delay timer
-
-        // THE BOARD IS FUCKING WRAPPING AROUND WHYYYYYYYYYY
 
         // FETCH
         // Load Instruction Register with memory at program counter
@@ -221,10 +220,8 @@ public class Chip8CPU extends Thread{
                 break;
 
             case 0xD000: // DRW Vx, Vy, nibble
-                // Draw sprtie starting at sprite index, going down(?) by a number of lines given in a nibble of data,
+                // Draw sprtie starting at sprite index, going down by a number of lines given in a nibble of data,
                 // starting at the x and y coords held in registers x and y
-                // TODO: Weird offset, IDK why
-                // Nibble is y, data seems to be put in center going left of 8XNibble zone
                 System.out.println("DRW Vx, Vy, nibble");
                 int spriteSize = instructionRegister & 0xF; // X offset by 5??? 
                 registers[0xF] = 0;
@@ -242,12 +239,6 @@ public class Chip8CPU extends Thread{
                         screenData[drawX][drawY] ^= getBitAtPos(memory[I + j], i);
                     }
                 }
-                /*for (int j = 0; j < 15; j++) {
-                    for (int i = 0; i < 15; i++) { 
-                        System.out.println(j + "," + i + ": " + screenData[j][i]);
-                    }
-                }*/
-                //paused = true;
                 progCounter += 2;
                 break;
 
