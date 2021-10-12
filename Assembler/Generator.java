@@ -14,8 +14,6 @@ public class Generator {
     private ArrayList<Token> labels = new ArrayList<Token>();   // Keep list of all labels for crossrefencing
     private ArrayList<Byte> machineCode = new ArrayList<Byte>(); // Keep list of bytes for machine code
 
-    private Token entrypoint;
-
     public Generator(ArrayList<Token> tokens){  // Constuctor, store tokens
         this.tokens = tokens;
     }
@@ -23,20 +21,22 @@ public class Generator {
     public void generateCode (){    // Generate code
         String instruction;
 
-        int adress = 0; // Track adress for labels
+        calulateLabelAdresses(); // Track adress for labels
         
         // TODO: make entrypoint work, check adresses
+        // TODO: make error if wrong mem adress mode, don't just ignore instruction
+
         for (Token token : tokens) {    // For every token
             switch (token.getID()) {    // Get its id
-                case "GLOBAL":
-                    entrypoint = token;
+                case "GLOBAL": // JP to start point
+                    instruction = String.format("1%03x",findAdressFromLabel(token.getOperands()[0]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
                     break;
 
                 case "LABEL":
                     // TODO: check for duplicates
-                    Token temp = token;
-                    token.setAdress(adress + 0x200);
-                    labels.add(token);
                     break;                
 
                 case "LD":
@@ -54,7 +54,6 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             } 
-                            adress += 2;   
                             break;
 
                         case "Sprite Pointer":
@@ -64,7 +63,6 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             } 
-                            adress += 2;   
                             break;
                     }
                     break;
@@ -77,8 +75,7 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
-                            }
-                            adress += 2;   
+                            }  
                             break;
                     }
                     break;
@@ -92,7 +89,6 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
-                            adress += 2;   
                             break;
                     }
                     break;
@@ -111,8 +107,7 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
-                            }
-                            adress += 2;    
+                            } 
                             break;
                     }
                     break;
@@ -132,7 +127,6 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
-                            adress += 2;    
                             break;
                     }
                     break;
@@ -142,7 +136,6 @@ public class Generator {
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                     System.out.println(instruction);
-                    adress += 2;    
                     break;
 
                 case "JP":
@@ -150,14 +143,60 @@ public class Generator {
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                     System.out.println(instruction);
-                    adress += 2;    
+                    break;
+
+                case "CALL":
+                    instruction = String.format("2%03x",findAdressFromLabel(token.getOperands()[0]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
+                    break;
+
+                case "RET":
+                    instruction = String.format("00EE");
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
                     break;
             
                 default:
-                    System.out.println("Unimplemented/Invalid token " + token.getID());
+                    System.out.println("Unimplemented/Invalid token in generateCode(), " + token.getID());
                     break;
             }
         }
+    }
+
+    public void calulateLabelAdresses (){
+        int adress = 0x200;
+        for (Token token : tokens) {
+            switch (token.getID()) {
+                case "GLOBAL":
+                    adress += 2; // GLOBAL implemented as unconditional jump to entrypoint
+                    break;
+
+                case "LABEL":
+                    token.setAdress(adress);
+                    labels.add(token);
+                    break;
+
+                case "LD":
+                case "ADD":
+                case "SUB":
+                case "SE":
+                case "SNE":
+                case "DRW":
+                case "JP":
+                case "CALL":
+                case "RET":
+                    adress += 2;
+                    break;
+            
+                default:
+                    System.out.println("Unimplemented/Invalid token in calulateLabelAdresses(), " + token.getID());
+                    break;
+            }
+        }
+
     }
 
     public int findAdressFromLabel (String label){

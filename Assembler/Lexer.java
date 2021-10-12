@@ -86,6 +86,17 @@ public class Lexer {
                             i += 1; // Skip args, already processed 
                             break;
 
+                        case "CALL":  // call, calls subroutine
+                            System.out.println("CALL: " + words[i + 1]);
+                            tokens.add(new Token("CALL", convertToArray(words, i + 1, 1)));
+                            i += 1; // Skip args, already processed 
+                            break;
+
+                        case "RET":  // return from subroutine
+                            System.out.println("RET");
+                            tokens.add(new Token("RET", convertToArray(words, i, 1)));
+                            break;
+
                         case "DRW":  // unconditional jump instruction, takes next two tokens as args
                             System.out.println("DRW: " + words[i + 1]);
                             tokens.add(new Token("DRW", convertToArray(words, i + 1, 3)));
@@ -93,9 +104,12 @@ public class Lexer {
                             break;
                     
                         default:    // Otherwise, try to process as label
-                            System.out.println("LABEL: " + words[i]);
-                            // TODO: UNHARDCODE; NOT ALWAYS TEXT!!
-                            tokens.add(new Token("LABEL", convertToArray(words, i, 1)));
+                            if(word.charAt(0) == '_'){ // Label
+                                System.out.println("LABEL: " + words[i]);
+                                tokens.add(new Token("LABEL", convertToArray(words, i, 1)));
+                            }else{
+                                System.out.println("Unimplemented/Invalid token in tokenize(), " + word);
+                            }
                             break;
                     }
                 }
