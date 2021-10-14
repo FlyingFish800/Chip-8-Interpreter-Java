@@ -14,28 +14,29 @@ public class Generator {
     private ArrayList<Token> labels = new ArrayList<Token>();   // Keep list of all labels for crossrefencing
     private ArrayList<Byte> machineCode = new ArrayList<Byte>(); // Keep list of bytes for machine code
 
-    private Token entrypoint;
-
     public Generator(ArrayList<Token> tokens){  // Constuctor, store tokens
         this.tokens = tokens;
     }
 
     public void generateCode (){    // Generate code
+        String instruction;
 
-        int adress = 0; // Track adress for labels
+        calulateLabelAdresses(); // Track adress for labels
         
         // TODO: make entrypoint work, check adresses
-        for (Token token : tokens) {    // For eevry token
+        // TODO: make error if wrong mem adress mode, don't just ignore instruction
+
+        for (Token token : tokens) {    // For every token
             switch (token.getID()) {    // Get its id
-                case "GLOBAL":
-                    entrypoint = token;
+                case "GLOBAL": // JP to start point
+                    instruction = String.format("1%03x",findAdressFromLabel(token.getOperands()[0]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
                     break;
 
                 case "LABEL":
                     // TODO: check for duplicates
-                    Token temp = token;
-                    token.setAdress(adress + 0x202);
-                    labels.add(token);
                     break;                
 
                 case "LD":
@@ -43,17 +44,25 @@ public class Generator {
                         case "Register":
                             if(token.getAdressingModes()[1].equals("Immediate")){ // LD Rx, byte
                                 // TODO: Bytes not strings 
-                                String instruction = String.format("6%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
+                                instruction = String.format("6%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             } else if (token.getAdressingModes()[1].equals("Register")){ //LD Rx, Ry
-                                String instruction = String.format("8%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                instruction = String.format("8%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
-                            }
-                            adress += 1;    
+                            } 
+                            break;
+
+                        case "Sprite Pointer":
+                            if (token.getAdressingModes()[1].equals("Register")){ //LD F, Rx
+                                instruction = String.format("F%x29",Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            } 
                             break;
                     }
                     break;
@@ -62,28 +71,70 @@ public class Generator {
                     switch (token.getAdressingModes()[0]){
                         case "Register":
                             if(token.getAdressingModes()[1].equals("Register")){ // ADD Rx, Ry
-                                String instruction = String.format("8%x%x4",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                instruction = String.format("8%x%x4",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            } else if(token.getAdressingModes()[1].equals("Immediate")){ // ADD Rx, byte
+                                instruction = String.format("7%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }  
+                            break;
+                    }
+                    break;
+                
+                case "OR":
+                    switch (token.getAdressingModes()[0]){
+                        case "Register":
+                            if(token.getAdressingModes()[1].equals("Register")){ // OR Rx, Ry
+                                instruction = String.format("8%x%x1",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
                             break;
                     }
-                    adress += 1;    
+                    break;
+                
+                case "AND":
+                    switch (token.getAdressingModes()[0]){
+                        case "Register":
+                            if(token.getAdressingModes()[1].equals("Register")){ // AND Rx, Ry
+                                instruction = String.format("8%x%x2",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }
+                            break;
+                    }
+                    break;
+                
+                case "XOR":
+                    switch (token.getAdressingModes()[0]){
+                        case "Register":
+                            if(token.getAdressingModes()[1].equals("Register")){ // XOR Rx, Ry
+                                instruction = String.format("8%x%x3",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }
+                            break;
+                    }
                     break;
 
                 case "SUB":
                     switch (token.getAdressingModes()[0]){
                         case "Register":
-                            if(token.getAdressingModes()[1].equals("Register")){ // ADD Rx, Ry
-                                String instruction = String.format("8%x%x5",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                            if(token.getAdressingModes()[1].equals("Register")){ // SUB Rx, Ry
+                                instruction = String.format("8%x%x5",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
                             break;
                     }
-                    adress += 1;    
                     break;
 
                 case "SE":
@@ -91,17 +142,16 @@ public class Generator {
                         case "Register":
                             if(token.getAdressingModes()[1].equals("Immediate")){ // SE Rx, byte
                                 // TODO: Bytes not strings 
-                                String instruction = String.format("3%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
+                                instruction = String.format("3%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             } else if (token.getAdressingModes()[1].equals("Register")){ //SE Rx, Ry
-                                String instruction = String.format("5%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                instruction = String.format("5%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
-                            }
-                            adress += 1;    
+                            } 
                             break;
                     }
                     break;
@@ -111,34 +161,94 @@ public class Generator {
                         case "Register":
                             if(token.getAdressingModes()[1].equals("Immediate")){ // LD Rx, byte
                                 // TODO: Bytes not strings 
-                                String instruction = String.format("4%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
+                                instruction = String.format("4%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             } else if (token.getAdressingModes()[1].equals("Register")){ //LD Rx, Ry
-                                String instruction = String.format("9%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                instruction = String.format("9%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             }
-                            adress += 1;    
                             break;
                     }
                     break;
 
-                case "JP":
-                    String instruction = String.format("1%03x",findAdressFromLabel(token.getOperands()[0]));
+                case "DRW":
+                    instruction = String.format("D%x%x%x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")),Integer.decode(token.getOperands()[2]));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                     System.out.println(instruction);
-                    adress += 1;    
+                    break;
+
+                case "JP":
+                    instruction = String.format("1%03x",findAdressFromLabel(token.getOperands()[0]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
+                    break;
+
+                case "CALL":
+                    instruction = String.format("2%03x",findAdressFromLabel(token.getOperands()[0]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
+                    break;
+
+                case "RET":
+                    instruction = String.format("00EE");
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
+                    break;
+
+                case "CLS":
+                    instruction = String.format("00E0");
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
                     break;
             
                 default:
-                    System.out.println("Unimplemented/Invalid token " + token.getID());
+                    System.out.println("Unimplemented/Invalid token in generateCode(), " + token.getID());
                     break;
             }
         }
+    }
+
+    public void calulateLabelAdresses (){
+        int adress = 0x200;
+        for (Token token : tokens) {
+            switch (token.getID()) {
+                case "GLOBAL":
+                    adress += 2; // GLOBAL implemented as unconditional jump to entrypoint
+                    break;
+
+                case "LABEL":
+                    token.setAdress(adress);
+                    labels.add(token);
+                    break;
+
+                case "LD":
+                case "ADD":
+                case "SUB":
+                case "SE":
+                case "SNE":
+                case "DRW":
+                case "JP":
+                case "CALL":
+                case "RET":
+                case "CLS":
+                    adress += 2;
+                    break;
+            
+                default:
+                    System.out.println("Unimplemented/Invalid token in calulateLabelAdresses(), " + token.getID());
+                    break;
+            }
+        }
+
     }
 
     public int findAdressFromLabel (String label){

@@ -56,14 +56,16 @@ public class Chip8Display implements KeyListener{
 		g = bs.getDrawGraphics();
 
 		//draw
-		g.clearRect(0, 0, WIDTH*scale+PANEL_WIDTH, HEIGHT*scale);
-        g.setColor(Color.BLACK);
-		
-        for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < HEIGHT; y++) {
-                if(screenData[x][y]) g.fillRect(x*scale, y*scale, scale, scale);
-            }
-        }
+
+		if(cpu.redrawScreen()){ // Draw screen, but only when cpu updates it
+			g.clearRect(0, 0, WIDTH*scale+PANEL_WIDTH, HEIGHT*scale);
+			g.setColor(Color.BLACK);
+			for (int x = 0; x < WIDTH; x++) {
+				for (int y = 0; y < HEIGHT; y++) {
+					if(screenData[x][y]) g.fillRect(x*scale, y*scale, scale, scale);
+				}
+			}
+		}
 		g.setColor(Color.RED);
 		g.fillRect(WIDTH*scale, 0, PANEL_WIDTH, HEIGHT*scale);
 		g.setColor(Color.WHITE);
@@ -76,6 +78,10 @@ public class Chip8Display implements KeyListener{
 			currentYpos += 16;
 			g.drawString("Register["+i+"]: " + registers[i], WIDTH*scale+4, currentYpos);
 		}
+		currentYpos += 16;
+		g.drawString("I", WIDTH*scale+4, currentYpos);
+		currentYpos += 16;
+		g.drawString("[I]: " + cpu.getI(), WIDTH*scale+4, currentYpos);
 		currentYpos += 16;
 		g.drawString("STACK", WIDTH*scale+4, currentYpos);
 		int[] stack = cpu.getStack();

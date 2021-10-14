@@ -28,7 +28,9 @@ public class Chip8CPU extends Thread{
     private int instructionRegister; // Holds current instruction
     private boolean[][] screenData; // Contains data to be drawn to screen
     private int delayTimer; // Timer for delay purposes
+    private int soundTimer; // Timer for sound purposes
     private Random rand;
+    private boolean redraw = false; // Flag to redraw screen only when necessary
 
     // Create CPU
     public Chip8CPU (){
@@ -71,7 +73,8 @@ public class Chip8CPU extends Thread{
     }
 
     private boolean getBitAtPos (int data, int index){ // Helper method for getting bit at index in int
-        return ((data >> index) & 1) == 1;
+        // - 7 to start at most significant bit, shift and get last bit if its a 1
+        return ((data >> 7 - index) & 1) == 1;
     }
 
     public int[] getRegisters (){ // Getter for displaying registers for debug purposes
@@ -93,12 +96,25 @@ public class Chip8CPU extends Thread{
         return Integer.toHexString(instructionRegister);
     }
 
+    public int getI (){
+        return I;
+    }
+
+    public boolean redrawScreen (){ // Getter for redraw variable that resets it if true
+        if (redraw){
+            redraw = false;
+            return true;
+        }
+        return false;
+    }
+
     public void tick (boolean[] keys){ // Clock CPU, takes key presses as input
         if(paused) return; // Skip if paused
 
         if(delayTimer > 0) delayTimer--; // Decrease delay timer
-
-        // THE BOARD IS FUCKING WRAPPING AROUND WHYYYYYYYYYY
+        if(soundTimer > 0) {
+            soundTimer--; // Decrease sound timer TODO: unimplemented, make noise
+        }
 
         // FETCH
         // Load Instruction Register with memory at program counter
@@ -117,6 +133,11 @@ public class Chip8CPU extends Thread{
                     System.out.println("RET");
                     progCounter = stack[stackPtr-1];
                     stackPtr--;
+                    progCounter += 2;
+                }else if(instructionRegister == 0x00E0){ // CLS
+                    // Clear Screen
+                    System.out.println("CLS");
+                    screenData = new boolean[SCREEN_WIDTH][SCREEN_HEIGHT];
                     progCounter += 2;
                 }else{
                     // Unimplemented/Invalid
@@ -172,10 +193,18 @@ public class Chip8CPU extends Thread{
                     // Load register y with value of register y
                     System.out.println("LD Vx, Vy"); 
                     registers[x] = registers[y];
+                }else if((instructionRegister & 0xF) == 0x1){ // OR Vx, Vy
+                    // And registers x and y, store in register x
+                    System.out.println("OR Vx, Vy"); 
+                    registers[x] |= registers[y];
                 }else if((instructionRegister & 0xF) == 0x2){ // AND Vx, Vy
                     // And registers x and y, store in register x
                     System.out.println("AND Vx, Vy"); 
                     registers[x] &= registers[y];
+                }else if((instructionRegister & 0xF) == 0x3){ // XOR Vx, Vy
+                    // And registers x and y, store in register x
+                    System.out.println("XOR Vx, Vy"); 
+                    registers[x] ^= registers[y];
                 }else if((instructionRegister & 0xF) == 0x4){ // ADD Vx, Vy
                     // Add registers x and y, and with 255, put result in register x
                     System.out.println("ADD Vx, Vy"); 
@@ -194,6 +223,11 @@ public class Chip8CPU extends Thread{
                         registers[0xF] = 0;
                     }
                     registers[x] = registers[x] - registers[y];
+                }else if((instructionRegister & 0xF) == 0x6){ // SHR Vx, {, Vy}
+                    // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2
+                    System.out.println("SHR Vx, {, Vy}"); 
+                    registers[0xF] = registers[x] & 1;
+                    registers[x] /= 2;
                 }else{
                     // Unimplemented/Invalid
                     System.err.printf("Invalid/Unimplemented opcode %x%n", instructionRegister);
@@ -217,11 +251,10 @@ public class Chip8CPU extends Thread{
                 break;
 
             case 0xD000: // DRW Vx, Vy, nibble
-                // Draw sprtie starting at sprite index, going down(?) by a number of lines given in a nibble of data,
+                // Draw sprtie starting at sprite index, going down by a number of lines given in a nibble of data,
                 // starting at the x and y coords held in registers x and y
-                // TODO: Weird offset, IDK why
                 System.out.println("DRW Vx, Vy, nibble");
-                int spriteSize = instructionRegister & 0xF;
+                int spriteSize = instructionRegister & 0xF; // X offset by 5??? 
                 registers[0xF] = 0;
                 for (int j = 0; j < spriteSize; j++) {
                     for (int i = 0; i < 8; i++) {
@@ -229,16 +262,15 @@ public class Chip8CPU extends Thread{
                         int drawX = i + registers[x];
                         int drawY = j + registers[y];
 
-                        if (drawX > SCREEN_WIDTH - 1) drawX -= SCREEN_WIDTH;
-                        if (drawY > SCREEN_HEIGHT - 1) drawY -= SCREEN_HEIGHT;
-                        System.out.println(drawX + "," + drawY);
+                        while (drawX > SCREEN_WIDTH - 1) drawX -= SCREEN_WIDTH;
+                        while (drawY > SCREEN_HEIGHT - 1) drawY -= SCREEN_HEIGHT;
           
                         if(screenData[drawX][drawY] == true) registers[0xF] = 1;
                         screenData[drawX][drawY] ^= getBitAtPos(memory[I + j], i);
                     }
                 }
-                //paused = true;
                 progCounter += 2;
+                redraw = true;
                 break;
 
             case 0xE000: // Assorted
@@ -269,6 +301,16 @@ public class Chip8CPU extends Thread{
                     System.out.println("LD DT, Vx");
                     delayTimer = registers[x];
                     progCounter += 2;
+                }else if((instructionRegister & 0xFF) == 0x18){ // LD ST, Vx
+                    // Load sound timer with value of register x
+                    System.out.println("LD ST, Vx");
+                    soundTimer = registers[x];
+                    progCounter += 2;
+                }else if((instructionRegister & 0xFF) == 0x1E){ // ADD I, Vx
+                    // Add value of Vx to I
+                    System.out.println("ADD I, Vx");
+                    I += registers[x];
+                    progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x29){ // LD F, Vx
                     // Set Sprite pointer to adress of a hex character (from register x) from default instruction set
                     System.out.println("LD F, Vx");
@@ -278,18 +320,15 @@ public class Chip8CPU extends Thread{
                 }else if((instructionRegister & 0xFF) == 0x33){ // LD B, Vx
                     // Load memory addresses from Sprite pointer to Sprite pointer + 2 with 3 places of decimal value of register x
                     System.out.println("LD B, Vx");
-                    System.out.println(registers[x]);
                     memory[I] = registers[x] / 100;
                     memory[I+1] = (registers[x] / 10) % 10;
                     memory[I+2] = registers[x] % 10;
-                    System.out.println("Mem: " + memory[I] + " " + memory[I + 1] + " " + memory[I + 2]);
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x65){ // LD Vx, I
                     // Load registers 0 through x to value from sprite pointer
                     System.out.println("LD Vx, I");
                     for (int i = 0; i <= x; i++) {
                         registers[i] = memory[I + i];
-                        System.out.print("Register[" + i + "] = " + registers[i] + " ");
                     }
                     System.out.println();
                     progCounter += 2;
