@@ -4,3 +4,11 @@ A Chip 8 Interpreter written in java
 ## Games
 Pong programs are not mine, they came from Chip-8 games pack, aquired here:
 https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html
+
+## Todo
+Add all opcodes to interpreter
+Add all instructions to assembler
+
+Possibly later:
+Write Disassembler
+Write (very simplified) higher-level language compiler (lisp?)
