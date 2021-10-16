@@ -56,7 +56,7 @@ public class Generator {
                             } 
                             break;
 
-                        case "Sprite Pointer":
+                        case "Sprite Pointer Digit":
                             if (token.getAdressingModes()[1].equals("Register")){ //LD F, Rx
                                 instruction = String.format("F%x29",Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));

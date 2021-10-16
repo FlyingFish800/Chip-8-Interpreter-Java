@@ -68,7 +68,9 @@ public class Token {
             } else if(operands[i].contains("0x")){  // Hex is 0xBYTE
                 operands[i] = Integer.parseInt(operands[i].split("0x")[1],16) + "";
                 adressingModes[i] = "Immediate";
-            } else if(operands[i].equals("F")){  // Sprite Register 
+            } else if(operands[i].equals("F")){  // Sprite Register with location of digit in VX
+                adressingModes[i] = "Sprite Pointer Digit";
+            } else if(operands[i].equals("I")){  // Load I-I+x with V0-Vx
                 adressingModes[i] = "Sprite Pointer";
             } else {    // Immediate values are unmarked
                 adressingModes[i] = "Immediate";
