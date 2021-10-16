@@ -61,6 +61,24 @@ public class Lexer {
                             tokens.add(new Token("ADD", convertToArray(words, i + 1, 2)));
                             i += 2; // Skip args, already processed 
                             break;
+                            
+                        case "OR":  // Or instruction, takes next two tokens as args
+                            System.out.println("OR: " + words[i + 1] + " " + words[i + 2]);
+                            tokens.add(new Token("OR", convertToArray(words, i + 1, 2)));
+                            i += 2; // Skip args, already processed 
+                            break;
+                            
+                        case "AND":  // And instruction, takes next two tokens as args
+                            System.out.println("AND: " + words[i + 1] + " " + words[i + 2]);
+                            tokens.add(new Token("AND", convertToArray(words, i + 1, 2)));
+                            i += 2; // Skip args, already processed 
+                            break;
+                            
+                        case "XOR":  // Xor instruction, takes next two tokens as args
+                            System.out.println("XOR: " + words[i + 1] + " " + words[i + 2]);
+                            tokens.add(new Token("XOR", convertToArray(words, i + 1, 2)));
+                            i += 2; // Skip args, already processed 
+                            break;
 
                         case "SUB":  // Subtract instruction, takes next two tokens as args
                             System.out.println("SUB: " + words[i + 1] + " " + words[i + 2]);
@@ -95,6 +113,11 @@ public class Lexer {
                         case "RET":  // return from subroutine
                             System.out.println("RET");
                             tokens.add(new Token("RET", convertToArray(words, i, 1)));
+                            break;
+
+                        case "CLS":  // clear screen
+                            System.out.println("CLS");
+                            tokens.add(new Token("CLS", convertToArray(words, i, 1)));
                             break;
 
                         case "DRW":  // unconditional jump instruction, takes next two tokens as args

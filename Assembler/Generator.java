@@ -75,7 +75,51 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
+                            } else if(token.getAdressingModes()[1].equals("Immediate")){ // ADD Rx, byte
+                                instruction = String.format("7%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
                             }  
+                            break;
+                    }
+                    break;
+                
+                case "OR":
+                    switch (token.getAdressingModes()[0]){
+                        case "Register":
+                            if(token.getAdressingModes()[1].equals("Register")){ // OR Rx, Ry
+                                instruction = String.format("8%x%x1",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }
+                            break;
+                    }
+                    break;
+                
+                case "AND":
+                    switch (token.getAdressingModes()[0]){
+                        case "Register":
+                            if(token.getAdressingModes()[1].equals("Register")){ // AND Rx, Ry
+                                instruction = String.format("8%x%x2",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }
+                            break;
+                    }
+                    break;
+                
+                case "XOR":
+                    switch (token.getAdressingModes()[0]){
+                        case "Register":
+                            if(token.getAdressingModes()[1].equals("Register")){ // XOR Rx, Ry
+                                instruction = String.format("8%x%x3",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }
                             break;
                     }
                     break;
@@ -83,7 +127,7 @@ public class Generator {
                 case "SUB":
                     switch (token.getAdressingModes()[0]){
                         case "Register":
-                            if(token.getAdressingModes()[1].equals("Register")){ // ADD Rx, Ry
+                            if(token.getAdressingModes()[1].equals("Register")){ // SUB Rx, Ry
                                 instruction = String.format("8%x%x5",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
@@ -158,6 +202,13 @@ public class Generator {
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                     System.out.println(instruction);
                     break;
+
+                case "CLS":
+                    instruction = String.format("00E0");
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(instruction);
+                    break;
             
                 default:
                     System.out.println("Unimplemented/Invalid token in generateCode(), " + token.getID());
@@ -188,6 +239,7 @@ public class Generator {
                 case "JP":
                 case "CALL":
                 case "RET":
+                case "CLS":
                     adress += 2;
                     break;
             
