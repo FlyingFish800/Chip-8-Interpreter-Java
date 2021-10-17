@@ -49,6 +49,7 @@ public class Chip8CPU extends Thread{
         delayTimer = 0; // Reset timer
         rand = new Random();
         loadSpriteData(); // Load default sprites into memory
+        redraw = true;
         System.out.println("--------RESET-PROCESSOR--------");
     }
 
@@ -324,13 +325,19 @@ public class Chip8CPU extends Thread{
                     memory[I+1] = (registers[x] / 10) % 10;
                     memory[I+2] = registers[x] % 10;
                     progCounter += 2;
+                }else if((instructionRegister & 0xFF) == 0x55){ // LD I, Vx
+                    // Load memory adresses I through I + x to registers V0 through Vx
+                    System.out.println("LD I, Vx");
+                    for (int i = 0; i <= x; i++) {
+                        memory[I+i] = registers[i];
+                    }
+                    progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x65){ // LD Vx, I
                     // Load registers 0 through x to value from sprite pointer
                     System.out.println("LD Vx, I");
                     for (int i = 0; i <= x; i++) {
                         registers[i] = memory[I + i];
                     }
-                    System.out.println();
                     progCounter += 2;
                 }else{
                     // Unimplemented/Invalid

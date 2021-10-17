@@ -53,6 +53,11 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
+                            } else if (token.getAdressingModes()[1].equals("Sprite Pointer")){ //LD Rx, I
+                                instruction = String.format("F%x65",Integer.decode(token.getOperands()[0].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
                             } 
                             break;
 
@@ -63,6 +68,25 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(instruction);
                             } 
+                            break;
+
+                        case "Sprite Pointer":
+                            if (token.getAdressingModes()[1].equals("Register")){ //LD I, Rx
+                                instruction = String.format("F%x55",Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            } else if (token.getAdressingModes()[1].equals("Immediate")) {//LD I, addr TODO: Token mem mode
+                                instruction = String.format("A%03x",Integer.decode(token.getOperands()[1]));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }else { //if (token.getAdressingModes()[1].equals("Immediate") {//LD I, addr (label ver) TODO: Token mem mode
+                                instruction = String.format("A%03x",findAdressFromLabel(token.getOperands()[1]));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(instruction);
+                            }
                             break;
                     }
                     break;
