@@ -56,6 +56,17 @@ public class Token {
     public void setAdress(int adress){
         this.adress = adress;
     }
+    
+    public void addOperand(String operand){
+        String[] temp = operands;
+        operands = new String [temp.length + 1];
+        int i = 0;
+        for (String string : temp) {
+            operands[i] = string;
+            i++;
+        }
+        operands[i] = operand;
+    }
 
     public void calculateAdressingTypes(){
 
@@ -72,6 +83,8 @@ public class Token {
                 adressingModes[i] = "Sprite Pointer Digit";
             } else if(operands[i].equals("I")){  // Load I-I+x with V0-Vx
                 adressingModes[i] = "Sprite Pointer";
+            } else if(operands[i].charAt(0) == '_'){
+                adressingModes[i] = "Label";
             } else {    // Immediate values are unmarked
                 adressingModes[i] = "Immediate";
             } // end if

@@ -25,115 +25,146 @@ public class Lexer {
 
             boolean comment = false;
             String[] words = line.split(" ");   // Split by spaces
+            int times = 0; // Times for TIMES keyword
 
             for (int i = 0; i < words.length; i++) {    // For every 'word'
+
                 String word = words[i]; // Get word
+
+                if(word.length() >= 1 && word.charAt(0) == ';') comment = true; // Set comment if it is one
+
                 if(!comment && word.length() >= 1){ // If it isn't a comment or nonexistant
-                    switch (word) { // Try to generate token
-                        case ";":   // Always need space after semicolon
-                            comment = true; // Set comment if it is one
-                            break;
+                    if(currentSegmentType == segmentType.TEXT){ // If in text segment
+                        switch (word) { // Try to generate token
+                            case ".data":   // Handle segments
+                                System.out.println(word);
+                                currentSegmentType = segmentType.DATA;
+                                break;
 
-                        case ".text":   // Handle segments
-                            System.out.println(word);
-                            currentSegmentType = segmentType.TEXT;
-                            break;
+                            case ".global": // Define global label
+                                System.out.println("GLOBAl: " + words[i + 1]);
+                                tokens.add(new Token("GLOBAL", convertToArray(words, i + 1, 1), segmentType.TEXT));
+                                i += 1; // Skip label, already processed
+                                break;
 
-                        case ".data":
-                            System.out.println("DATA");
-                            currentSegmentType = segmentType.DATA;
-                            break;
+                            case "LD":  // Load instruction, takes next two tokens as args
+                                System.out.println("LD: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("LD", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
 
-                        case ".global": // Define global label
-                            System.out.println("GLOBAl: " + words[i + 1]);
-                            tokens.add(new Token("GLOBAL", convertToArray(words, i + 1, 1), segmentType.TEXT));
-                            i += 1; // Skip label, already processed
-                            break;
+                            case "ADD":  // Add instruction, takes next two tokens as args
+                                System.out.println("ADD: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("ADD", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
+                                
+                            case "OR":  // Or instruction, takes next two tokens as args
+                                System.out.println("OR: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("OR", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
+                                
+                            case "AND":  // And instruction, takes next two tokens as args
+                                System.out.println("AND: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("AND", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
+                                
+                            case "XOR":  // Xor instruction, takes next two tokens as args
+                                System.out.println("XOR: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("XOR", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
 
-                        case "LD":  // Load instruction, takes next two tokens as args
-                            System.out.println("LD: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("LD", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
+                            case "SUB":  // Subtract instruction, takes next two tokens as args
+                                System.out.println("SUB: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("SUB", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
 
-                        case "ADD":  // Add instruction, takes next two tokens as args
-                            System.out.println("ADD: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("ADD", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
-                            
-                        case "OR":  // Or instruction, takes next two tokens as args
-                            System.out.println("OR: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("OR", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
-                            
-                        case "AND":  // And instruction, takes next two tokens as args
-                            System.out.println("AND: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("AND", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
-                            
-                        case "XOR":  // Xor instruction, takes next two tokens as args
-                            System.out.println("XOR: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("XOR", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
+                            case "SE":  // Skip Equal instruction, takes next two tokens as args
+                                System.out.println("SE: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("SE", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
 
-                        case "SUB":  // Subtract instruction, takes next two tokens as args
-                            System.out.println("SUB: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("SUB", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
+                            case "SNE":  // Skip not equal instruction, takes next two tokens as args
+                                System.out.println("SNE: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("SNE", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
 
-                        case "SE":  // Skip Equal instruction, takes next two tokens as args
-                            System.out.println("SE: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("SE", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
+                            case "JP":  // unconditional jump instruction, takes next two tokens as args
+                                System.out.println("JP: " + words[i + 1]);
+                                tokens.add(new Token("JP", convertToArray(words, i + 1, 1)));
+                                i += 1; // Skip args, already processed 
+                                break;
 
-                        case "SNE":  // Skip not equal instruction, takes next two tokens as args
-                            System.out.println("SNE: " + words[i + 1] + " " + words[i + 2]);
-                            tokens.add(new Token("SNE", convertToArray(words, i + 1, 2)));
-                            i += 2; // Skip args, already processed 
-                            break;
+                            case "CALL":  // call, calls subroutine
+                                System.out.println("CALL: " + words[i + 1]);
+                                tokens.add(new Token("CALL", convertToArray(words, i + 1, 1)));
+                                i += 1; // Skip argslength, already processed 
+                                break;
 
-                        case "JP":  // unconditional jump instruction, takes next two tokens as args
-                            System.out.println("JP: " + words[i + 1]);
-                            tokens.add(new Token("JP", convertToArray(words, i + 1, 1)));
-                            i += 1; // Skip args, already processed 
-                            break;
+                            case "RET":  // return from subroutine
+                                System.out.println("RET");
+                                tokens.add(new Token("RET", convertToArray(words, i, 1)));
+                                break;
 
-                        case "CALL":  // call, calls subroutine
-                            System.out.println("CALL: " + words[i + 1]);
-                            tokens.add(new Token("CALL", convertToArray(words, i + 1, 1)));
-                            i += 1; // Skip args, already processed 
-                            break;
+                            case "CLS":  // clear screen
+                                System.out.println("CLS");
+                                tokens.add(new Token("CLS", convertToArray(words, i, 1)));
+                                break;
 
-                        case "RET":  // return from subroutine
-                            System.out.println("RET");
-                            tokens.add(new Token("RET", convertToArray(words, i, 1)));
-                            break;
+                            case "DRW":  // unconditional jump instruction, takes next two tokens as args
+                                System.out.println("DRW: " + words[i + 1]);
+                                tokens.add(new Token("DRW", convertToArray(words, i + 1, 3)));
+                                i += 3; // Skip args, already processed 
+                                break;
+                        
+                            default:    // Otherwise, try to process as label
+                                if(word.charAt(0) == '_'){ // Label
+                                    System.out.println("LABEL: " + words[i]);
+                                    tokens.add(new Token("LABEL", convertToArray(words, i, 1)));
+                                }else{
+                                    System.out.println("Unimplemented/Invalid token in tokenize() (text segment), " + word);
+                                }
+                                break;
+                        }
+                    }else if(currentSegmentType == segmentType.DATA){
+                        switch (word) { // Try to generate token
+                            case ".text":   // Handle segments
+                                System.out.println(word);
+                                currentSegmentType = segmentType.TEXT;
+                                break;
 
-                        case "CLS":  // clear screen
-                            System.out.println("CLS");
-                            tokens.add(new Token("CLS", convertToArray(words, i, 1)));
-                            break;
+                            case "DB":   // Handle segments
+                                System.out.println("DB");
+                                int endIndex = 0;
+                                for (int j = i + 1; j < words.length; j++) { // look through rest of line for bytes to define
+                                    if(words[j].contains(";")) break;   // Stop if comment, otherwise go to end
+                                    endIndex++;
+                                }
+                                tokens.add(new Token("DB", convertToArray(words, i + 1, endIndex), currentSegmentType));
+                                i += endIndex;
+                                break;
 
-                        case "DRW":  // unconditional jump instruction, takes next two tokens as args
-                            System.out.println("DRW: " + words[i + 1]);
-                            tokens.add(new Token("DRW", convertToArray(words, i + 1, 3)));
-                            i += 3; // Skip args, already processed 
-                            break;
-                    
-                        default:    // Otherwise, try to process as label
-                            if(word.charAt(0) == '_'){ // Label
-                                System.out.println("LABEL: " + words[i]);
-                                tokens.add(new Token("LABEL", convertToArray(words, i, 1)));
-                            }else{
-                                System.out.println("Unimplemented/Invalid token in tokenize(), " + word);
-                            }
-                            break;
+                            case "TIMES":
+                                System.out.println("TIMES"); 
+                                tokens.add(new Token("TIMES", convertToArray(words, i + 1, 1), currentSegmentType));
+                                i += 1;
+                                break;
+                        
+                            default:    // Otherwise, try to process as label
+                                if(word.charAt(0) == '_'){ // Label
+                                    System.out.println("LABEL: " + words[i]);
+                                    tokens.add(new Token("LABEL", convertToArray(words, i, 1), segmentType.DATA));
+                                }else{ 
+                                    System.out.println("Unimplemented/Invalid token in tokenize() (data segment), " + word);
+                                }
+                                break;
+                        }
                     }
                 }
             }

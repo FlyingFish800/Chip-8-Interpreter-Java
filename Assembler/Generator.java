@@ -13,6 +13,7 @@ public class Generator {
     private ArrayList<Token> tokens;    // Keep list of all tokens
     private ArrayList<Token> labels = new ArrayList<Token>();   // Keep list of all labels for crossrefencing
     private ArrayList<Byte> machineCode = new ArrayList<Byte>(); // Keep list of bytes for machine code
+    private Token entrypoint;
 
     public Generator(ArrayList<Token> tokens){  // Constuctor, store tokens
         this.tokens = tokens;
@@ -21,23 +22,47 @@ public class Generator {
     public void generateCode (){    // Generate code
         String instruction;
 
-        calulateLabelAdresses(); // Track adress for labels
-        
+        calulateLabelAdresses(); // Track adress for labels, and get entrypoint
+
+        // JP to start point
+        instruction = String.format("1%03x",findAdressFromLabel(entrypoint.getOperands()[0]));
+        machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+        machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+        System.out.println("0200: " + instruction);
+
+        // Times counter
+        int times = 1;
+
+        // Address
+        int address = 0x202;
+
         // TODO: make entrypoint work, check adresses
         // TODO: make error if wrong mem adress mode, don't just ignore instruction
 
         for (Token token : tokens) {    // For every token
             switch (token.getID()) {    // Get its id
-                case "GLOBAL": // JP to start point
-                    instruction = String.format("1%03x",findAdressFromLabel(token.getOperands()[0]));
-                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
-                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                    System.out.println(instruction);
+                case "GLOBAL":
                     break;
 
                 case "LABEL":
                     // TODO: check for duplicates
                     break;                
+
+                case "DB":
+                    for (int time = 0; time < times; time++) {
+                        for (int i = 0; i < token.getOperands().length; i++) {
+                            instruction = String.format("%02x",Integer.decode(token.getOperands()[i]));
+                            machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                            System.out.println(String.format("%04x: %02x", address, Integer.decode(token.getOperands()[i])));
+                            address += 1;
+                        } 
+                    }   
+                    times = 1;
+                    break;
+
+                case "TIMES":
+                    times = Integer.decode(token.getOperands()[0]);
+                    break;
 
                 case "LD":
                     switch (token.getAdressingModes()[0]){
@@ -47,17 +72,20 @@ public class Generator {
                                 instruction = String.format("6%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } else if (token.getAdressingModes()[1].equals("Register")){ //LD Rx, Ry
                                 instruction = String.format("8%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } else if (token.getAdressingModes()[1].equals("Sprite Pointer")){ //LD Rx, I
                                 instruction = String.format("F%x65",Integer.decode(token.getOperands()[0].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } 
                             break;
 
@@ -66,7 +94,8 @@ public class Generator {
                                 instruction = String.format("F%x29",Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } 
                             break;
 
@@ -75,17 +104,20 @@ public class Generator {
                                 instruction = String.format("F%x55",Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } else if (token.getAdressingModes()[1].equals("Immediate")) {//LD I, addr TODO: Token mem mode
                                 instruction = String.format("A%03x",Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
-                            }else { //if (token.getAdressingModes()[1].equals("Immediate") {//LD I, addr (label ver) TODO: Token mem mode
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
+                            } else if (token.getAdressingModes()[1].equals("Label")){ //LD I, addr (label ver) TODO: Token mem mode
                                 instruction = String.format("A%03x",findAdressFromLabel(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }
                             break;
                     }
@@ -98,12 +130,14 @@ public class Generator {
                                 instruction = String.format("8%x%x4",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } else if(token.getAdressingModes()[1].equals("Immediate")){ // ADD Rx, byte
                                 instruction = String.format("7%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }  
                             break;
                     }
@@ -116,7 +150,8 @@ public class Generator {
                                 instruction = String.format("8%x%x1",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }
                             break;
                     }
@@ -129,7 +164,8 @@ public class Generator {
                                 instruction = String.format("8%x%x2",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }
                             break;
                     }
@@ -142,7 +178,8 @@ public class Generator {
                                 instruction = String.format("8%x%x3",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }
                             break;
                     }
@@ -155,7 +192,8 @@ public class Generator {
                                 instruction = String.format("8%x%x5",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }
                             break;
                     }
@@ -169,12 +207,14 @@ public class Generator {
                                 instruction = String.format("3%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } else if (token.getAdressingModes()[1].equals("Register")){ //SE Rx, Ry
                                 instruction = String.format("5%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } 
                             break;
                     }
@@ -188,12 +228,14 @@ public class Generator {
                                 instruction = String.format("4%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             } else if (token.getAdressingModes()[1].equals("Register")){ //LD Rx, Ry
                                 instruction = String.format("9%x%x0",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                                System.out.println(instruction);
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
                             }
                             break;
                     }
@@ -203,50 +245,55 @@ public class Generator {
                     instruction = String.format("D%x%x%x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")),Integer.decode(token.getOperands()[2]));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                    System.out.println(instruction);
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
                     break;
 
                 case "JP":
                     instruction = String.format("1%03x",findAdressFromLabel(token.getOperands()[0]));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                    System.out.println(instruction);
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
                     break;
 
                 case "CALL":
                     instruction = String.format("2%03x",findAdressFromLabel(token.getOperands()[0]));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                    System.out.println(instruction);
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
                     break;
 
                 case "RET":
                     instruction = String.format("00EE");
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                    System.out.println(instruction);
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
                     break;
 
                 case "CLS":
                     instruction = String.format("00E0");
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
-                    System.out.println(instruction);
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
                     break;
             
                 default:
-                    System.out.println("Unimplemented/Invalid token in generateCode(), " + token.getID());
+                    System.out.println(address+": Unimplemented/Invalid token in generateCode(), " + token.getID());
                     break;
             }
         }
     }
 
     public void calulateLabelAdresses (){
-        int adress = 0x200;
+        int adress = 0x202; // First instruction is global 
         for (Token token : tokens) {
             switch (token.getID()) {
-                case "GLOBAL":
-                    adress += 2; // GLOBAL implemented as unconditional jump to entrypoint
+                case "GLOBAL": // GLOBAL implemented as unconditional jump to entrypoint
+                    entrypoint = token; // Set entrypoint
                     break;
 
                 case "LABEL":
@@ -266,6 +313,15 @@ public class Generator {
                 case "CLS":
                     adress += 2;
                     break;
+
+                case "DB":
+                    adress += token.getOperands().length;
+                    break;
+
+                case "TIMES":   // TODO: make dynamic
+                    System.out.println("A: "+Integer.parseInt(token.getOperands()[0]));
+                    adress += Integer.parseInt(token.getOperands()[0]) - 1; // Because next instruction also triggers adress increase. TODO: make dynamic
+                    break;
             
                 default:
                     System.out.println("Unimplemented/Invalid token in calulateLabelAdresses(), " + token.getID());
@@ -275,7 +331,7 @@ public class Generator {
 
     }
 
-    public int findAdressFromLabel (String label){
+    public int findAdressFromLabel (String label){ // get labels
         for (Token l : labels) {
             if(l.getOperands()[0].split(":")[0].equals(label)) {
                 return l.getAdress();

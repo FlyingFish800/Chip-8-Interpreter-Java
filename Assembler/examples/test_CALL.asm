@@ -14,7 +14,7 @@ _draw_chars:  ; draws chars going across screen from a to f
     JP _draw_chars
 
 _drw_next_char: ; char in R2 at R0,R1, increments R2 and R0 to next position
-    CLS
+    ;CLS
     LD F, R2 ; load sprite pointer to char in V2
     DRW R0, R1, 5   ; draw sprite at sprite pointer going down 5 adresses at (R0, R1)
     ADD R0, 5
