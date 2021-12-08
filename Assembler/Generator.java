@@ -241,8 +241,32 @@ public class Generator {
                     }
                     break;
 
+                case "RND":
+                    instruction = String.format("C%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
+                    break;
+
                 case "DRW":
                     instruction = String.format("D%x%x%x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1].replace("R", "")),Integer.decode(token.getOperands()[2]));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
+                    break;
+
+                case "SKP":
+                    instruction = String.format("E%x9E",Integer.decode(token.getOperands()[0].replace("R", "")));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                    machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                    System.out.println(String.format("%04x: %s", address, instruction));
+                    address += 2;
+                    break;
+
+                case "SKNP":
+                    instruction = String.format("E%xA1",Integer.decode(token.getOperands()[0].replace("R", "")));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                     machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                     System.out.println(String.format("%04x: %s", address, instruction));
@@ -309,6 +333,9 @@ public class Generator {
                 case "DRW":
                 case "JP":
                 case "CALL":
+                case "RND":
+                case "SKP":
+                case "SKNP":
                 case "RET":
                 case "CLS":
                     adress += 2;

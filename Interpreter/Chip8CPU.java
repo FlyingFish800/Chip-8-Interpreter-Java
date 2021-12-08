@@ -2,6 +2,7 @@
 
 //package Interpreter;
 import java.util.Random;
+import java.awt.event.KeyEvent;
 
 /** Alexander Symons | 9/4/21 | Chip8CPU.java
  * Chip8CPU
@@ -15,7 +16,7 @@ public class Chip8CPU extends Thread{
     // Default font below
     final int[] SPRITE_DATA = {0xF0, 0x90, 0x90, 0x90, 0xF0, 0x20, 0x60, 0x20, 0x20, 0x70, 0xF0, 0x10, 0xF0, 0x80, 0xF0, 0xF0, 0x10, 0xF0, 0x10, 0xF0, 0x90, 0x90, 0xF0, 0x10, 0x10, 0xF0, 0x80, 0xF0, 0x10, 0xF0, 0xF0, 0x80, 0xF0, 0x90, 0xF0, 0xF0, 0x10, 0x20, 0x40, 0x40, 0xF0, 0x90, 0xF0, 0x90, 0xF0, 0xF0, 0x90, 0xF0, 0x10, 0xF0, 0xF0, 0x90, 0xF0, 0x90, 0x90, 0xE0, 0x90, 0xE0, 0x90, 0xE0, 0xF0, 0x80, 0x80, 0x80, 0xF0, 0xE0, 0x90, 0x90, 0x90, 0xE0, 0xF0, 0x80, 0xF0, 0x80, 0xF0, 0xF0, 0x80, 0xF0, 0x80, 0x80};
     // Assigns square from 1 to v to a hexidecimal keypad
-    final int[] KEY_ASSGNMENT = {88 ,49 ,50 ,51 ,81 ,87 ,69 ,65 ,83 ,68 ,90 ,67 , 52, 82, 70, 86};
+    final int[] KEY_ASSGNMENT = {KeyEvent.VK_X ,KeyEvent.VK_1 ,KeyEvent.VK_2 ,KeyEvent.VK_3 ,KeyEvent.VK_Q ,KeyEvent.VK_W ,KeyEvent.VK_E ,KeyEvent.VK_A ,KeyEvent.VK_S ,KeyEvent.VK_D ,KeyEvent.VK_Z ,KeyEvent.VK_C , KeyEvent.VK_4, KeyEvent.VK_R, KeyEvent.VK_F, KeyEvent.VK_V};
 
     
     private boolean paused = false; // Halts processor
@@ -31,6 +32,7 @@ public class Chip8CPU extends Thread{
     private int soundTimer; // Timer for sound purposes
     private Random rand;
     private boolean redraw = false; // Flag to redraw screen only when necessary
+    private boolean debug = true; // Flag to enable debug output to terminal
 
     // Create CPU
     public Chip8CPU (){
@@ -124,20 +126,20 @@ public class Chip8CPU extends Thread{
         int x = (instructionRegister & 0xF00) >> 8;
         int y = (instructionRegister & 0xF0) >> 4;
         // Print adress and opcode
-        System.out.printf("ADDR %x:  OP %x  -->  ",progCounter,instructionRegister);
+        if(debug)System.out.printf("ADDR %x:  OP %x  -->  ",progCounter,instructionRegister);
 
         // DECODE
         switch (instructionRegister & 0xF000) {
             case 0x0000: //assorted
                 if(instructionRegister == 0x00EE){ // RET
                     // Return from called subroutine
-                    System.out.println("RET");
+                    if(debug)System.out.println("RET");
                     progCounter = stack[stackPtr-1];
                     stackPtr--;
                     progCounter += 2;
                 }else if(instructionRegister == 0x00E0){ // CLS
                     // Clear Screen
-                    System.out.println("CLS");
+                    if(debug)System.out.println("CLS");
                     screenData = new boolean[SCREEN_WIDTH][SCREEN_HEIGHT];
                     progCounter += 2;
                 }else{
@@ -149,13 +151,13 @@ public class Chip8CPU extends Thread{
 
             case 0x1000: // JP nnn
                 // Unconditional jump to addr nnn
-                System.out.println("JP nnn");
+                if(debug)System.out.println("JP nnn");
                 progCounter = instructionRegister & 0xFFF;
                 break;
 
             case 0x2000: // CALL nnn
                 // Call subroutine at nnn
-                System.out.println("CALL nnn");
+                if(debug)System.out.println("CALL nnn");
                 stack[stackPtr] = progCounter;
                 stackPtr++;
                 progCounter = instructionRegister & 0xFFF;
@@ -163,14 +165,14 @@ public class Chip8CPU extends Thread{
 
             case 0x3000: // SE Vx, byte
                 // Skip next instruction if register x == byte
-                System.out.println("SE Vx, byte");
+                if(debug)System.out.println("SE Vx, byte");
                 if(registers[x] == (instructionRegister & 0xFF)) progCounter += 2;
                 progCounter += 2;
                 break;
 
             case 0x4000: // SNE Vx, byte
                 // Skip next instruction if register x != byte
-                System.out.println("SNE Vx, byte");
+                if(debug)System.out.println("SNE Vx, byte");
                 if(registers[x] != (instructionRegister & 0xFF)) progCounter += 2;
                 progCounter += 2;
                 break;
@@ -184,14 +186,14 @@ public class Chip8CPU extends Thread{
 
             case 0x6000: // LD Vx, byte
                 // Load register x with byte
-                System.out.println("LD Vx, byte");
+                if(debug)System.out.println("LD Vx, byte");
                 registers[x] = instructionRegister & 0xFF;
                 progCounter += 2;
                 break;
 
             case 0x7000: // ADD Vx, byte
                 // add byte to register x
-                System.out.println("ADD Vx, byte ");
+                if(debug)System.out.println("ADD Vx, byte ");
                 registers[x] += instructionRegister & 0xFF;
                 progCounter += 2;
                 break;
@@ -199,23 +201,23 @@ public class Chip8CPU extends Thread{
             case 0x8000:
                 if((instructionRegister & 0xF) == 0x0){ // LD Vx, Vy
                     // Load register y with value of register y
-                    System.out.println("LD Vx, Vy"); 
+                    if(debug)System.out.println("LD Vx, Vy"); 
                     registers[x] = registers[y];
                 }else if((instructionRegister & 0xF) == 0x1){ // OR Vx, Vy
                     // And registers x and y, store in register x
-                    System.out.println("OR Vx, Vy"); 
+                    if(debug)System.out.println("OR Vx, Vy"); 
                     registers[x] |= registers[y];
                 }else if((instructionRegister & 0xF) == 0x2){ // AND Vx, Vy
                     // And registers x and y, store in register x
-                    System.out.println("AND Vx, Vy"); 
+                    if(debug)System.out.println("AND Vx, Vy"); 
                     registers[x] &= registers[y];
                 }else if((instructionRegister & 0xF) == 0x3){ // XOR Vx, Vy
                     // And registers x and y, store in register x
-                    System.out.println("XOR Vx, Vy"); 
+                    if(debug)System.out.println("XOR Vx, Vy"); 
                     registers[x] ^= registers[y];
                 }else if((instructionRegister & 0xF) == 0x4){ // ADD Vx, Vy
                     // Add registers x and y, and with 255, put result in register x
-                    System.out.println("ADD Vx, Vy"); 
+                    if(debug)System.out.println("ADD Vx, Vy"); 
                     if(registers[x] + registers[y] > 255) {
                         registers[0xF] = 1;
                     } else {
@@ -224,7 +226,7 @@ public class Chip8CPU extends Thread{
                     registers[x] = (registers[x] + registers[y]) & 0xFF;
                 }else if((instructionRegister & 0xF) == 0x5){ // SUB Vx, Vy
                     // Add registers x and y, and with 255, put result in register x
-                    System.out.println("SUB Vx, Vy"); 
+                    if(debug)System.out.println("SUB Vx, Vy"); 
                     if(registers[x] > registers[y]) {
                         registers[0xF] = 1;
                     } else {
@@ -233,7 +235,7 @@ public class Chip8CPU extends Thread{
                     registers[x] = registers[x] - registers[y];
                 }else if((instructionRegister & 0xF) == 0x6){ // SHR Vx, {, Vy}
                     // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2
-                    System.out.println("SHR Vx, {, Vy}"); 
+                    if(debug)System.out.println("SHR Vx, {, Vy}"); 
                     registers[0xF] = registers[x] & 1;
                     registers[x] /= 2;
                 }else if((instructionRegister & 0xF) == 0x7){ // SUBN Vx, Vy
@@ -264,7 +266,7 @@ public class Chip8CPU extends Thread{
 
             case 0xA000: // LD I, addr
                 // Load sprite pointer with adress nnn
-                System.out.println("LD I, addr");
+                if(debug)System.out.println("LD I, addr");
                 I = instructionRegister & 0xFFF;
                 progCounter += 2;
                 break;
@@ -277,7 +279,7 @@ public class Chip8CPU extends Thread{
 
             case 0xC000: // RND Vx, byte
                 // Generate random number, and with 255, store in register x
-                System.out.println("RND Vx, byte");
+                if(debug)System.out.println("RND Vx, byte");
                 registers[x] = rand.nextInt(256) & (instructionRegister & 0xFF);
                 progCounter += 2;
                 break;
@@ -285,7 +287,7 @@ public class Chip8CPU extends Thread{
             case 0xD000: // DRW Vx, Vy, nibble
                 // Draw sprtie starting at sprite index, going down by a number of lines given in a nibble of data,
                 // starting at the x and y coords held in registers x and y
-                System.out.println("DRW Vx, Vy, nibble");
+                if(debug)System.out.println("DRW Vx, Vy, nibble");
                 int spriteSize = instructionRegister & 0xF; // X offset by 5??? 
                 registers[0xF] = 0;
                 for (int j = 0; j < spriteSize; j++) {
@@ -308,15 +310,15 @@ public class Chip8CPU extends Thread{
             case 0xE000: // Assorted
                 if((instructionRegister & 0xFF) == 0x9E){ // SKP Vx
                     // Skip next instruction if key in register x is pressed
-                    System.out.println("SKP Vx");
+                    if(debug)System.out.println("SKP Vx");
                     if(keys[KEY_ASSGNMENT[registers[x]]]) progCounter += 2;
                 } else if((instructionRegister & 0xFF) == 0xA1){ // SKNP Vx
                     // Skip next instruction if key in register x is not pressed
-                    System.out.println("SKNP Vx"); 
+                    if(debug)System.out.println("SKNP Vx"); 
                     if(!keys[KEY_ASSGNMENT[registers[x]]]) progCounter += 2;
                 } else {
                     // Unimplemented/Invalid
-                    System.err.printf("Invalid/Unimplemented opcode %x%n", instructionRegister);
+                    if(debug)System.err.printf("Invalid/Unimplemented opcode %x%n", instructionRegister);
                     paused = true;
                 }
                 progCounter += 2;
@@ -325,47 +327,47 @@ public class Chip8CPU extends Thread{
             case 0xF000: // assorted
                 if((instructionRegister & 0xFF) == 0x07){ // LD Vx, DT
                     // Load register x with value of delay timer
-                    System.out.println("LD Vx, DT");
+                    if(debug)System.out.println("LD Vx, DT");
                     registers[x] = delayTimer;
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x15){ // LD DT, Vx
                     // Load delay timer with value of register x
-                    System.out.println("LD DT, Vx");
+                    if(debug)System.out.println("LD DT, Vx");
                     delayTimer = registers[x];
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x18){ // LD ST, Vx
                     // Load sound timer with value of register x
-                    System.out.println("LD ST, Vx");
+                    if(debug)System.out.println("LD ST, Vx");
                     soundTimer = registers[x];
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x1E){ // ADD I, Vx
                     // Add value of Vx to I
-                    System.out.println("ADD I, Vx");
+                    if(debug)System.out.println("ADD I, Vx");
                     I += registers[x];
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x29){ // LD F, Vx
                     // Set Sprite pointer to adress of a hex character (from register x) from default instruction set
-                    System.out.println("LD F, Vx");
+                    if(debug)System.out.println("LD F, Vx");
                     // Character Sprites are 5 lines starting at mem addr 0x0. Formula = desired_character * 5 (0*5 = addr 0, 1*5 = addr 5)
                     I = registers[x] * 5; 
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x33){ // LD B, Vx
                     // Load memory addresses from Sprite pointer to Sprite pointer + 2 with 3 places of decimal value of register x
-                    System.out.println("LD B, Vx");
+                    if(debug)System.out.println("LD B, Vx");
                     memory[I] = registers[x] / 100;
                     memory[I+1] = (registers[x] / 10) % 10;
                     memory[I+2] = registers[x] % 10;
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x55){ // LD I, Vx
                     // Load memory adresses I through I + x to registers V0 through Vx
-                    System.out.println("LD I, Vx");
+                    if(debug)System.out.println("LD I, Vx");
                     for (int i = 0; i <= x; i++) {
                         memory[I+i] = registers[i];
                     }
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x65){ // LD Vx, I
                     // Load registers 0 through x to value from sprite pointer
-                    System.out.println("LD Vx, I");
+                    if(debug)System.out.println("LD Vx, I");
                     for (int i = 0; i <= x; i++) {
                         registers[i] = memory[I + i];
                     }
