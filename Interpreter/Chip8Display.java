@@ -97,12 +97,14 @@ public class Chip8Display implements KeyListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		keys[e.getKeyCode()] = true;
-		if(e.getKeyCode() == 27){
+		if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
 			pauseClock = !pauseClock;
-		} else if(e.getKeyCode() == 16){
+		} else if(e.getKeyCode() == KeyEvent.VK_SHIFT){
 			Chip8Main.pulse();
-		}else if(e.getKeyCode() == 8){
+		}else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE){
 			Chip8Main.reset();
+		}else if(e.getKeyCode() == KeyEvent.VK_CONTROL){
+			System.exit(0);
 		}
 		
 		//System.out.println(e.getKeyCode());

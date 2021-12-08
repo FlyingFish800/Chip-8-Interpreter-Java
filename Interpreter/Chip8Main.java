@@ -15,7 +15,6 @@ public class Chip8Main extends Thread{
     @Override
     public void run() {
         while (true) {
-            //System.out.println(SLEEP_TIME);
             if(!display.pauseClock) cpu.tick(display.getKeys());
             display.Refresh(cpu.getScreenData(), cpu);
             //cpu.printKeys(display.getKeys());
@@ -24,11 +23,12 @@ public class Chip8Main extends Thread{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            
         }
     }
 
     public static byte[] getProgram(String path) throws IOException {
-        FileInputStream fileStream = new FileInputStream("/home/alex/Documents/Chip/Interpreter/" + path);
+        FileInputStream fileStream = new FileInputStream("/home/alex/Documents/Chip/" + path);
         DataInputStream dataStream = new DataInputStream(fileStream);
         byte[] data = new byte[dataStream.available()];
         short index = 0;
@@ -47,7 +47,7 @@ public class Chip8Main extends Thread{
         cpu = new Chip8CPU();
         display = new Chip8Display(12);
         try {
-            cpu.loadProg(getProgram("out.c8"));
+            cpu.loadProg(getProgram("Assembler/out.c8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,7 +61,7 @@ public class Chip8Main extends Thread{
     public static void reset() {
         cpu.reset();
         try {
-            cpu.loadProg(getProgram("out.c8"));
+            cpu.loadProg(getProgram("Assembler/out.c8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

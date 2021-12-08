@@ -122,6 +122,24 @@ public class Lexer {
                                 tokens.add(new Token("DRW", convertToArray(words, i + 1, 3)));
                                 i += 3; // Skip args, already processed 
                                 break;
+                                
+                            case "RND":  // Rand instruction, takes next two tokens as args
+                                System.out.println("RND: " + words[i + 1] + " " + words[i + 2]);
+                                tokens.add(new Token("RND", convertToArray(words, i + 1, 2)));
+                                i += 2; // Skip args, already processed 
+                                break;
+                                
+                            case "SKP":  // Skip if pressed instruction, takes next token as args
+                                System.out.println("SKP: " + words[i + 1]);
+                                tokens.add(new Token("SKP", convertToArray(words, i + 1, 1)));
+                                i += 1; // Skip args, already processed 
+                                break;
+                                
+                            case "SKNP":  // Skip not pressed, takes next token as args
+                                System.out.println("SKNP: " + words[i + 1]);
+                                tokens.add(new Token("SKNP", convertToArray(words, i + 1, 1)));
+                                i += 1; // Skip args, already processed 
+                                break;
                         
                             default:    // Otherwise, try to process as label
                                 if(word.charAt(0) == '_'){ // Label
