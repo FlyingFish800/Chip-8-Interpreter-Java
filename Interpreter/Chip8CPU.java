@@ -177,6 +177,13 @@ public class Chip8CPU extends Thread{
                 progCounter += 2;
                 break;
 
+            case 0x5000: // SE Vx, Vy
+                // Skip next instruction if register x == byte
+                System.out.println("SE Vx, Vy");
+                if(registers[x] == registers[y]) progCounter += 2;
+                progCounter += 2;
+                break;
+
             case 0x6000: // LD Vx, byte
                 // Load register x with byte
                 if(debug)System.out.println("LD Vx, byte");
@@ -231,6 +238,17 @@ public class Chip8CPU extends Thread{
                     if(debug)System.out.println("SHR Vx, {, Vy}"); 
                     registers[0xF] = registers[x] & 1;
                     registers[x] /= 2;
+                }else if((instructionRegister & 0xF) == 0x7){ // SUBN Vx, Vy
+                    // Vx -= Vy, VF not borrow
+                    System.out.println("SUBN Vx, Vy"); 
+                    registers[0xF] = 0;
+                    if(registers[y] > registers[x]) registers[0xF] = 1;
+                    registers[x] -= registers[y];
+                }else if((instructionRegister & 0xF) == 0xE){ // SHL Vx, {, Vy}
+                    // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is mulyiplied by 2
+                    System.out.println("SHL Vx, {, Vy}"); 
+                    registers[0xF] = registers[x] & 128;
+                    registers[x] = (registers[x] * 2) & 0xFF;
                 }else{
                     // Unimplemented/Invalid
                     System.err.printf("Invalid/Unimplemented opcode %x%n", instructionRegister);
@@ -239,11 +257,24 @@ public class Chip8CPU extends Thread{
                 progCounter += 2;
                 break;
 
+            case 0x9000: // SNE Vx, Vy
+                // Skip next instruction if Vx != Vy
+                System.out.println("SNE Vx, Vy");
+                if(registers[x] != registers[y]) progCounter += 2;
+                progCounter += 2;
+                break;
+
             case 0xA000: // LD I, addr
                 // Load sprite pointer with adress nnn
                 if(debug)System.out.println("LD I, addr");
                 I = instructionRegister & 0xFFF;
                 progCounter += 2;
+                break;
+
+            case 0xB000: // JP V0, addr
+                // Jump to location addr + V0
+                System.out.println("JP V0, addr");
+                progCounter = (instructionRegister & 0xFFF) + registers[0];
                 break;
 
             case 0xC000: // RND Vx, byte

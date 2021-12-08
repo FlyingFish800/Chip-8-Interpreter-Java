@@ -27,8 +27,10 @@ _start:
 byte -> Replace with 8-bit number, 0-255 or 0x0-0xFF (4-bit for nibble, 12-bit for addr)
 
 ### instructions
-.text -> code segment
 .data -> data segment
+DB Byte, Byte -> Define byte(s), put byte value(s) into memory. Can have as many bytes as you want, seperated by commas
+TIMES x -> Repeat next data segment instruction x times
+.text -> code segment
 .global _label -> defines what _label to start from
 _label -> label segment of code, store adress as immideate, replace _label with anything preceded by underscore
 CLS -> Clear Screen
