@@ -28,7 +28,7 @@ public class Chip8Main extends Thread{
     }
 
     public static byte[] getProgram(String path) throws IOException {
-        FileInputStream fileStream = new FileInputStream("/home/alex/Documents/Chip/" + path);
+        FileInputStream fileStream = new FileInputStream("./" + path);
         DataInputStream dataStream = new DataInputStream(fileStream);
         byte[] data = new byte[dataStream.available()];
         short index = 0;
@@ -61,7 +61,7 @@ public class Chip8Main extends Thread{
     public static void reset() {
         cpu.reset();
         try {
-            cpu.loadProg(getProgram("Assembler/out.c8"));
+            cpu.loadProg(getProgram("Interpreter/pong.ch8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

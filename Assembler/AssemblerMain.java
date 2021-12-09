@@ -28,7 +28,7 @@ public class AssemblerMain {
 
     public static String readFile (String path){    // Load file
 
-        File file = new File("/home/alex/Documents/Chip/Assembler/" + path);    // Create refernce to file
+        File file = new File("./Assembler/" + path);    // Create refernce to file
         Scanner sc; // Define scanner
         String fileContents = "";   // Define string to hold file contents
 

@@ -1,0 +1,9 @@
+---DO ALL CMDS IN CHIP DIRECTORY---
+
+Assembler:
+    javac Assembler/*.java
+    java -classpath Assembler AssemblerMain
+
+Interpreter:
+    javac Interpreter/*.java
+    java -classpath Interpreter Chip8Main

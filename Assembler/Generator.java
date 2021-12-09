@@ -369,7 +369,7 @@ public class Generator {
         OutputStream opStream = null;
         try {
             // TODO: 0-127 unchanged, 128 = -128
-            File myFile = new File("/home/alex/Documents/Chip/Assembler/" + path);
+            File myFile = new File("./Assembler/" + path);
             // check if file exist, otherwise create the file before writing
             if (!myFile.exists()) {
                 myFile.createNewFile();
