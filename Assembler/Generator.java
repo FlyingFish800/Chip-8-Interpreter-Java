@@ -1,7 +1,5 @@
 // 9/26/21 | Alexander Symons | Assembler | AssemblerMain.java
 
-package Assembler;
-
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.File;

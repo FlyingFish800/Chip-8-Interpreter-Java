@@ -1,7 +1,5 @@
 // 9/25/21 | Alexander Symons | Assembler | AssemblerMain.java
 
-package Assembler;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
