@@ -17,6 +17,7 @@ public class Chip8Display implements KeyListener{
     final int HEIGHT = 32;
     final int PANEL_WIDTH = 130;
 	final int MAX_KEYS = 111; // Up to numpad /
+	final boolean FANCY_COLORS = true;
 
     JFrame jf;
     Canvas canv;
@@ -59,8 +60,11 @@ public class Chip8Display implements KeyListener{
 		//draw
 
 		if(cpu.redrawScreen()){ // Draw screen, but only when cpu updates it
-			g.clearRect(0, 0, WIDTH*scale+PANEL_WIDTH, HEIGHT*scale);
-			g.setColor(Color.BLACK);
+			if(FANCY_COLORS) g.setColor(Color.BLACK);
+			else g.setColor(Color.WHITE);
+			g.fillRect(0, 0, WIDTH*scale+PANEL_WIDTH, HEIGHT*scale);
+			if(FANCY_COLORS) g.setColor(Color.GREEN);
+			else g.setColor(Color.BLACK);
 			for (int x = 0; x < WIDTH; x++) {
 				for (int y = 0; y < HEIGHT; y++) {
 					if(screenData[x][y]) g.fillRect(x*scale, y*scale, scale, scale);

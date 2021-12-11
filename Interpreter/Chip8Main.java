@@ -29,7 +29,7 @@ public class Chip8Main extends Thread{
     }
 
     public static byte[] getProgram(String path) throws IOException {
-        FileInputStream fileStream = new FileInputStream("/home/alex/Documents/Chip/" + path);
+        FileInputStream fileStream = new FileInputStream("./" + path);
         DataInputStream dataStream = new DataInputStream(fileStream);
         byte[] data = new byte[dataStream.available()];
         short index = 0;
