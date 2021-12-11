@@ -1,4 +1,5 @@
 // 9/25/21 | Alexander Symons | Assembler | AssemblerMain.java
+package Assembler;
 
 public class Token {
 

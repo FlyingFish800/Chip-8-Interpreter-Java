@@ -1,6 +1,7 @@
 // 8/31/21 | Alexander Symons | Chip 8 interpreter | Chip8CPU.java
 
-//package Interpreter;
+package Interpreter;
+
 import java.util.Random;
 import java.awt.event.KeyEvent;
 
