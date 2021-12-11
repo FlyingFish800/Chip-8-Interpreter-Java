@@ -61,7 +61,7 @@ public class Chip8Main extends Thread{
     public static void reset() {
         cpu.reset();
         try {
-            cpu.loadProg(getProgram("Interpreter/pong.ch8"));
+            cpu.loadProg(getProgram("Assembler/out.c8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
