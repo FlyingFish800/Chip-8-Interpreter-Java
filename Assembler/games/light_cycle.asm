@@ -191,7 +191,7 @@ _draw_border_escape_loop2:
     JP _draw_border_end_loop2
     LD R10, 63  ; Set X to right side
     JP _draw_border_sides
-_draw_border_end_loop2
+_draw_border_end_loop2:
     RET
 
 
