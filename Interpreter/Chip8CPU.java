@@ -300,7 +300,7 @@ public class Chip8CPU extends Thread{
                         while (drawX > SCREEN_WIDTH - 1) drawX -= SCREEN_WIDTH;
                         while (drawY > SCREEN_HEIGHT - 1) drawY -= SCREEN_HEIGHT;
           
-                        if(screenData[drawX][drawY] == true) registers[0xF] = 1;
+                        if(getBitAtPos(memory[I+j],i) && screenData[drawX][drawY]) registers[0xF] = 1;
                         screenData[drawX][drawY] ^= getBitAtPos(memory[I + j], i);
                     }
                 }
@@ -370,6 +370,7 @@ public class Chip8CPU extends Thread{
                     // Load registers 0 through x to value from sprite pointer
                     if(debug)System.out.println("LD Vx, I");
                     for (int i = 0; i <= x; i++) {
+                        System.out.println(registers[i] +" <- "+ memory[I+i]);
                         registers[i] = memory[I + i];
                     }
                     progCounter += 2;

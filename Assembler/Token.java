@@ -81,6 +81,8 @@ public class Token {
             } else if(operands[i].contains("%")){  // Binary is %BYTE
                 operands[i] = Integer.parseInt(operands[i].split("%")[1],2) + "";
                 adressingModes[i] = "Immediate";
+            } else if(operands[i].equals("B")){  // Sprite Register with location of digit in VX
+                adressingModes[i] = "Decimal Representation";
             } else if(operands[i].equals("F")){  // Sprite Register with location of digit in VX
                 adressingModes[i] = "Sprite Pointer Digit";
             } else if(operands[i].equals("I")){  // Load I-I+x with V0-Vx

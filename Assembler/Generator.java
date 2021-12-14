@@ -68,7 +68,6 @@ public class Generator {
                     switch (token.getAdressingModes()[0]){
                         case "Register":
                             if(token.getAdressingModes()[1].equals("Immediate")){ // LD Rx, byte
-                                // TODO: Bytes not strings 
                                 instruction = String.format("6%x%02x",Integer.decode(token.getOperands()[0].replace("R", "")),Integer.decode(token.getOperands()[1]));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
@@ -86,7 +85,10 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(String.format("%04x: %s", address, instruction));
                                 address += 2;
-                            } 
+                            }  else {
+                                System.err.println("Invalid secondary adressing mode " + token.getAdressingModes()[1] + " for load Register ");
+                                System.exit(1);
+                            }
                             break;
 
                         case "Sprite Pointer Digit":
@@ -96,7 +98,10 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(String.format("%04x: %s", address, instruction));
                                 address += 2;
-                            } 
+                            } else {
+                                System.err.println("Invalid secondary adressing mode " + token.getAdressingModes()[1] + " for load Sprite Pointer Digit");
+                                System.exit(1);
+                            }
                             break;
 
                         case "Sprite Pointer":
@@ -119,6 +124,24 @@ public class Generator {
                                 System.out.println(String.format("%04x: %s", address, instruction));
                                 address += 2;
                             }
+                            break;
+
+                        case "Decimal Representation":
+                            if (token.getAdressingModes()[1].equals("Register")){ //LD B, Rx
+                                instruction = String.format("F%x33",Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
+                            } else {
+                                System.err.println("Invalid secondary adressing mode " + token.getAdressingModes()[1] + " for load Decimal Representation");
+                                System.exit(1);
+                            }
+                            break;
+
+                        default:
+                            System.err.println("Invalid primary adressing mode " + token.getAdressingModes()[0] + " for load");
+                            System.exit(1);
                             break;
                     }
                     break;
