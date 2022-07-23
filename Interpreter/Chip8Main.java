@@ -68,4 +68,8 @@ public class Chip8Main extends Thread{
         }
     }
 
+    public static void keyPressed(int key){
+        cpu.keyPressed(key);
+    }
+
 } //end class

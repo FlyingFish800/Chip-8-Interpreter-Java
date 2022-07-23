@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import javax.swing.JFrame;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -101,7 +102,8 @@ public class Chip8Display implements KeyListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		keys[e.getKeyCode()] = true;
+		if(e.getKeyCode() < MAX_KEYS) keys[e.getKeyCode()] = true;
+		Chip8Main.keyPressed(e.getKeyCode());
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
 			pauseClock = !pauseClock;
 		} else if(e.getKeyCode() == KeyEvent.VK_SHIFT){

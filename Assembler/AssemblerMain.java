@@ -5,6 +5,8 @@ package Assembler;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import Assembler.Lexer;
+import Assembler.Token;
 
 public class AssemblerMain {
     public static void main(String[] args) {
@@ -13,7 +15,7 @@ public class AssemblerMain {
         Lexer lexer;            // Define Lexer
         Generator generator;    // Define Gnenerator
 
-        fileContents = readFile("games/light_cycle.asm");  // Load source code
+        fileContents = readFile("examples/test_getKey.asm");  // Load source code
         
         lexer = new Lexer(fileContents);    // Create Lexer
         lexer.tokenize();   // Tokenize source code

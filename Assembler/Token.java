@@ -87,6 +87,8 @@ public class Token {
                 adressingModes[i] = "Sprite Pointer Digit";
             } else if(operands[i].equals("I")){  // Load I-I+x with V0-Vx
                 adressingModes[i] = "Sprite Pointer";
+            } else if(operands[i].equals("K")){  // Load Key pressed
+                adressingModes[i] = "Key";
             } else if(operands[i].charAt(0) == '_'){
                 adressingModes[i] = "Label";
             } else {    // Immediate values are unmarked

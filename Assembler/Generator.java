@@ -85,7 +85,13 @@ public class Generator {
                                 machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
                                 System.out.println(String.format("%04x: %s", address, instruction));
                                 address += 2;
-                            }  else {
+                            } else if (token.getAdressingModes()[1].equals("Key")){ //LD Rx, K
+                                instruction = String.format("F%x0A",Integer.decode(token.getOperands()[0].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
+                            } else {
                                 System.err.println("Invalid secondary adressing mode " + token.getAdressingModes()[1] + " for load Register ");
                                 System.exit(1);
                             }

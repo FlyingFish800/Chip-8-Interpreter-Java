@@ -34,6 +34,8 @@ public class Chip8CPU extends Thread{
     private Random rand;
     private boolean redraw = false; // Flag to redraw screen only when necessary
     private boolean debug = true; // Flag to enable debug output to terminal
+    private boolean waitKey = false; // Are we wating for a key event
+    private int key = 0; // Key that was pressed during key event
 
     // Create CPU
     public Chip8CPU (){
@@ -111,6 +113,21 @@ public class Chip8CPU extends Thread{
         }
         return false;
     }
+
+    // Handle if a key was pressed, update waitKey and key
+    public void keyPressed(int keyCode){
+        // If we are waiting for key press
+        if(waitKey){
+            // Check to see if it is a Chip8 key
+            for (int i = 0; i < KEY_ASSGNMENT.length; i++) {
+                // If it is, break waitKey loop and assign key
+                if (KEY_ASSGNMENT[i] == keyCode) {
+                    key = i;
+                    waitKey = false;
+                } // end if
+            } // end for
+        } // end if
+    } // end keyPressed
 
     public void tick (boolean[] keys){ // Clock CPU, takes key presses as input
         if(paused) return; // Skip if paused
@@ -330,6 +347,21 @@ public class Chip8CPU extends Thread{
                     // Load register x with value of delay timer
                     if(debug)System.out.println("LD Vx, DT");
                     registers[x] = delayTimer;
+                    progCounter += 2;
+                }else if((instructionRegister & 0xFF) == 0x0A){ // LD Vx, K
+                    // Wait for kekypress and store key in Vx
+                    if(debug)System.out.println("LD Vx, K");
+                    // NOTE: Loop will be broken when Display calls a keyPressed()
+                    waitKey = true;
+                    while(waitKey) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(debug) System.out.println("Key press: " + key);
+                    registers[x] = key;
                     progCounter += 2;
                 }else if((instructionRegister & 0xFF) == 0x15){ // LD DT, Vx
                     // Load delay timer with value of register x
