@@ -145,6 +145,19 @@ public class Generator {
                             }
                             break;
 
+                        case "Sound Timer":
+                            if (token.getAdressingModes()[1].equals("Register")){ //LD ST, Rx
+                                instruction = String.format("F%x18",Integer.decode(token.getOperands()[1].replace("R", "")));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(0), 16) << 4) + Character.digit(instruction.charAt(1), 16)));
+                                machineCode.add((byte) ((Character.digit(instruction.charAt(2), 16) << 4) + Character.digit(instruction.charAt(3), 16)));
+                                System.out.println(String.format("%04x: %s", address, instruction));
+                                address += 2;
+                            } else {
+                                System.err.println("Invalid secondary adressing mode " + token.getAdressingModes()[1] + " for load Decimal Representation");
+                                System.exit(1);
+                            }
+                            break;
+
                         default:
                             System.err.println("Invalid primary adressing mode " + token.getAdressingModes()[0] + " for load");
                             System.exit(1);

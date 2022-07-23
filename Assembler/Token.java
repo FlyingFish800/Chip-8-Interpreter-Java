@@ -89,6 +89,8 @@ public class Token {
                 adressingModes[i] = "Sprite Pointer";
             } else if(operands[i].equals("K")){  // Load Key pressed
                 adressingModes[i] = "Key";
+            } else if(operands[i].equals("ST")){  // Load Sound timer
+                adressingModes[i] = "Sound Timer";
             } else if(operands[i].charAt(0) == '_'){
                 adressingModes[i] = "Label";
             } else {    // Immediate values are unmarked

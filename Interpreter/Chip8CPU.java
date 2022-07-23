@@ -4,6 +4,7 @@ package Interpreter;
 
 import java.util.Random;
 import java.awt.event.KeyEvent;
+import java.awt.*;
 
 /** Alexander Symons | 9/4/21 | Chip8CPU.java
  * Chip8CPU
@@ -134,6 +135,7 @@ public class Chip8CPU extends Thread{
 
         if(delayTimer > 0) delayTimer--; // Decrease delay timer
         if(soundTimer > 0) {
+            Toolkit.getDefaultToolkit().beep();
             soundTimer--; // Decrease sound timer TODO: unimplemented, make noise
         }
 
