@@ -119,8 +119,7 @@ public class Chip8Display implements KeyListener{
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		keys[e.getKeyCode()] = false;
-		
+		if(e.getKeyCode() < MAX_KEYS) keys[e.getKeyCode()] = false;	
 	}
 
 	@Override
